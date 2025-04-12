@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        // Check for saved theme preference and apply immediately to prevent flashing
+        if (localStorage.getItem('document-summarizer-theme') === 'dark' || 
+            (!localStorage.getItem('document-summarizer-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.body.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-200 ease-in-out">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-blue-600 dark:bg-gray-800 text-white shadow-lg transition-colors duration-200 ease-in-out">
+            <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-file-alt text-2xl"></i>
+                    <h1 class="text-2xl font-bold">Document Summarizer</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-blue-700 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <i class="fas fa-moon text-white dark:hidden"></i>
+                        <i class="fas fa-sun text-white hidden dark:block"></i>
+                    </button>
+                    <a href="https://github.com/aka-harsh" target="_blank" class="p-2 rounded-full hover:bg-blue-700 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <i class="fab fa-github text-white text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 transition-colors duration-200 ease-in-out">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Summarize Your Document</h2>
+                
+                <!-- Input Methods Tabs -->
+                <div class="mb-6 border-b border-gray-200 dark:border-gray-600">
+            <ul class="flex flex-wrap -mb-px" id="input-tabs" role="tablist">
+                <li class="mr-2" role="presentation">
+                    <button class="inline-block py-2 px-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 font-medium border-b-2 border-blue-600 dark:border-blue-400 rounded-t-lg active" id="text-tab" data-tab="text-input" type="button" role="tab" aria-controls="text" aria-selected="true">Text Input</button>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <button class="inline-block py-2 px-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100 font-medium border-b-2 border-transparent rounded-t-lg" id="file-tab" data-tab="file-input" type="button" role="tab" aria-controls="file" aria-selected="false">File Upload</button>
+                </li>
+            </ul>
+        </div>
+                
+                <!-- Tab Content -->
+                <div id="tab-content">
+                    <!-- Text Input -->
+                    <div id="text-input" class="tab-pane active">
+                        <div class="mb-4">
+                            <label for="input-text" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Enter your text:</label>
+                            <textarea id="input-text" rows="8" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div id="file-input" class="tab-pane hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload a file:</label>
+                            <div class="flex items-center justify-center w-full">
+                                <label class="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-semibold">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            TXT, PDF, DOCX, HTML (Max 10MB)
+                                        </p>
+                                    </div>
+                                    <input id="file-upload" type="file" class="hidden" accept=".txt,.pdf,.docx,.html,.md" />
+                                </label>
+                            </div>
+                            <div id="file-info" class="mt-2 text-sm text-gray-500 dark:text-gray-400 hidden">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-alt mr-2"></i>
+                                    <span id="file-name"></span>
+                                    <button id="remove-file" class="ml-2 text-red-500 hover:text-red-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Common Options -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="model-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Summarization Method:</label>
+                        <select id="model-type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="ensemble">Ensemble (Recommended)</option>
+                            <option value="textrank">TextRank</option>
+                            <option value="tfidf">TF-IDF</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="summary-ratio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Summary Length: <span id="ratio-value">30%</span></label>
+                        <input type="range" id="summary-ratio" min="10" max="50" value="30" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+                    </div>
+                    <div>
+                        <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language:</label>
+                        <select id="language" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="english">English</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="french">French</option>
+                            <option value="german">German</option>
+                            <option value="italian">Italian</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button id="summarize-btn" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center">
+                        <i class="fas fa-magic mr-2"></i>
+                        Generate Summary
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="results-section" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200 ease-in-out hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Summary Results</h2>
+                    <div class="flex space-x-2">
+                        <button id="copy-btn" class="p-2 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button id="download-btn" class="p-2 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Summary Content -->
+                <div class="mb-6">
+                    <div class="border border-gray-300 dark:border-gray-600 rounded-md p-4 bg-gray-50 dark:bg-gray-900 min-h-[200px] max-h-[500px] overflow-y-auto">
+                        <p id="summary-text" class="text-gray-800 dark:text-gray-200 whitespace-pre-line"></p>
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
+                        <div class="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Original Length</div>
+                        <div id="original-length" class="text-lg text-gray-800 dark:text-white font-bold"></div>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
+                        <div class="text-xs text-green-600 dark:text-green-400 font-medium mb-1">Summary Length</div>
+                        <div id="summary-length" class="text-lg text-gray-800 dark:text-white font-bold"></div>
+                    </div>
+                    <div class="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
+                        <div class="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">Compression Ratio</div>
+                        <div id="compression-ratio" class="text-lg text-gray-800 dark:text-white font-bold"></div>
+                    </div>
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-md">
+                        <div class="text-xs text-yellow-600 dark:text-yellow-400 font-medium mb-1">Processing Time</div>
+                        <div id="processing-time" class="text-lg text-gray-800 dark:text-white font-bold"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                    <p class="text-gray-800 dark:text-white text-lg font-medium">Generating summary...</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Please wait, this may take a moment.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6 transition-colors duration-200 ease-in-out">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-600 dark:text-gray-400 text-sm mb-4 md:mb-0">
+                    &copy; 2025 Document Summarizer. All rights reserved.
+                </div>
+                <div class="flex space-x-4">
+                    <a href="https://linkedin.com/in/harsh-mehta-59272a291" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://github.com/aka-harsh" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/harsh-mehta-59272a291" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/theme-switcher.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
