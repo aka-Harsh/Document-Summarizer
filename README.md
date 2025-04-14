@@ -102,4 +102,9 @@ curl -X POST http://localhost:8000/summarize \
   -d '{"text": "Your text to summarize...", "model_type": "ensemble", "ratio": 0.3, "language": "english"}'
 ```
 
-## 🔭 Project Outlook
+## 🔭 Project Outlook <br>
+
+![Image](https://github.com/user-attachments/assets/b52bae9a-5fef-4169-b4cc-576d265c8b7c)
+![Image](https://github.com/user-attachments/assets/298c289b-1d05-4023-8ddb-91755a79c941)
+![Image](https://github.com/user-attachments/assets/b919cd3d-61f9-40e3-8cfd-c76b250e4a6a)
+![Image](https://github.com/user-attachments/assets/1942e804-e1a3-4336-883e-11cecd932d86)
